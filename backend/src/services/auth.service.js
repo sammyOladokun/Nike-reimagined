@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 import { env } from '../config/env.js';
+import { conflict, unauthorized } from '../lib/errors.js';
 import { userRepository } from '../repositories/user.repository.js';
 
 const authPayloadSchema = z.object({
@@ -34,7 +35,7 @@ const signUp = async (payload) => {
   const existingUser = await userRepository.findByEmail(data.email);
 
   if (existingUser) {
-    throw new Error('An account with that email already exists');
+    throw conflict('An account with that email already exists');
   }
 
   const passwordHash = await bcrypt.hash(data.password, 10);
@@ -57,13 +58,13 @@ const signIn = async (payload) => {
   const user = await userRepository.findByEmail(data.email);
 
   if (!user) {
-    throw new Error('Invalid email or password');
+    throw unauthorized('Invalid email or password');
   }
 
   const passwordMatches = await bcrypt.compare(data.password, user.passwordHash);
 
   if (!passwordMatches) {
-    throw new Error('Invalid email or password');
+    throw unauthorized('Invalid email or password');
   }
 
   const token = issueToken(user);
@@ -83,7 +84,14 @@ const getSession = async (authorizationHeader) => {
     return { user: null };
   }
 
-  const decoded = jwt.verify(token, env.JWT_SECRET);
+  let decoded;
+
+  try {
+    decoded = jwt.verify(token, env.JWT_SECRET);
+  } catch {
+    return { user: null };
+  }
+
   const userId = Number(decoded.sub);
   const user = await userRepository.findById(userId);
 

@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
+import { unauthorized } from '../lib/errors.js';
 import { userRepository } from '../repositories/user.repository.js';
 
 const readToken = (request) => {
@@ -16,7 +17,7 @@ export const requireAuth = async (request, response, next) => {
     const token = readToken(request);
 
     if (!token) {
-      return response.status(401).json({ message: 'Authentication required' });
+      throw unauthorized('Authentication required');
     }
 
     const decoded = jwt.verify(token, env.JWT_SECRET);
@@ -24,12 +25,12 @@ export const requireAuth = async (request, response, next) => {
     const user = await userRepository.findById(userId);
 
     if (!user) {
-      return response.status(401).json({ message: 'Authentication required' });
+      throw unauthorized('Authentication required');
     }
 
     request.user = user;
     return next();
   } catch (error) {
-    return response.status(401).json({ message: 'Invalid or expired session' });
+    return response.status(401).json({ message: error.message || 'Invalid or expired session' });
   }
 };

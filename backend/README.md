@@ -4,16 +4,18 @@ Express API scaffold for the portfolio version of the store.
 
 ## What’s here
 - Health check route
-- Auth route skeleton
-- JWT-based session shape
-- In-memory user repository for local development
+- Auth routes with JWT cookies
+- Prisma schema for PostgreSQL
+- User repository backed by Postgres
+- Security middleware for headers and rate limiting
 
 ## Run
 ```bash
 cd backend
 npm install
+npm run prisma:generate
 npm run dev
 ```
 
 ## Environment
-Copy `.env.example` to `.env` and update the values before running locally.
+Copy `.env.example` to `.env` and update the database password before running locally.

@@ -11,6 +11,7 @@ import SingleProduct from './components/SingleProduct'
 import Auth from './Pages/Auth'
 import Checkout from './Pages/Checkout'
 import OrderSuccess from './Pages/OrderSuccess'
+import Account from './Pages/Account'
 
 const router = createBrowserRouter([
   {
@@ -44,6 +45,10 @@ const router = createBrowserRouter([
   {
     path:'/order-success',
     element: <><Navbar2/><OrderSuccess/><Footer/></>
+  },
+  {
+    path:'/account',
+    element: <><Navbar2/><Account/><Footer/></>
   },
   {
     path: "/products/:productId",

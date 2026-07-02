@@ -2,11 +2,12 @@ import React, { useContext, useMemo, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { useAuth } from '../context/AuthContext';
+import { apiRequest } from '../lib/api';
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
-  const { all_product, cartItems, getTotalCartAmount, getTotalCartItems } = useContext(ShopContext);
+  const { all_product, cartItems, clearCart, getTotalCartAmount, getTotalCartItems } = useContext(ShopContext);
   const [formData, setFormData] = useState({
     email: '',
     fullName: '',
@@ -14,6 +15,8 @@ const Checkout = () => {
     city: '',
     postalCode: '',
   });
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const items = useMemo(
     () => all_product.filter((product) => cartItems[product.id] > 0),
@@ -25,9 +28,42 @@ const Checkout = () => {
     setFormData((previous) => ({ ...previous, [name]: value }));
   };
 
-  const handlePlaceOrder = (event) => {
+  const handlePlaceOrder = async (event) => {
     event.preventDefault();
-    navigate('/order-success');
+    setIsSubmitting(true);
+    setErrorMessage('');
+
+    try {
+      const payload = {
+        customerName: formData.fullName,
+        customerEmail: user ? user.email : formData.email,
+        shippingAddress: formData.address,
+        city: formData.city,
+        postalCode: formData.postalCode,
+        items: items.map((product) => ({
+          productId: product.id,
+          productName: product.name,
+          unitPrice: product.new_price,
+          quantity: cartItems[product.id],
+        })),
+      };
+
+      const result = await apiRequest('/api/orders/checkout', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+      });
+
+      clearCart();
+      navigate('/order-success', {
+        state: {
+          order: result.order,
+        },
+      });
+    } catch (error) {
+      setErrorMessage(error.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (isLoading) {
@@ -154,11 +190,16 @@ const Checkout = () => {
             />
           </div>
 
+          {errorMessage && (
+            <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{errorMessage}</p>
+          )}
+
           <button
             type="submit"
-            className="w-full rounded-2xl bg-gray-950 py-4 text-lg font-semibold text-white transition hover:opacity-90"
+            disabled={isSubmitting}
+            className="w-full rounded-2xl bg-gray-950 py-4 text-lg font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            Place Order
+            {isSubmitting ? 'Placing Order...' : 'Place Order'}
           </button>
         </form>
 

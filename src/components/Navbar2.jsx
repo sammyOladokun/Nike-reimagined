@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Logo from '../assets/logo2.png'
 import { Link } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
@@ -9,14 +9,33 @@ import { UpdateFollower } from 'react-mouse-follower';
 import { NavbarMenu } from './Navbar';
 import { ShopContext } from '../context/ShopContext';
 import { useAuth } from '../context/AuthContext';
+import MiniCartDrawer from './MiniCartDrawer';
 
 const Navbar2 = () => {
   const [showMenu, setShowMenu] = useState(false)
+  const [miniCartOpen, setMiniCartOpen] = useState(() => {
+    if (typeof window === 'undefined') {
+      return false
+    }
+
+    return window.localStorage.getItem('nike-mini-cart-open') === 'true'
+  })
   const toggleMenu = () => {
     setShowMenu(!showMenu)
   }
   const {getTotalCartItems} = useContext(ShopContext)
   const { user, signOut } = useAuth()
+  const openMiniCart = () => setMiniCartOpen(true)
+  const closeMiniCart = () => setMiniCartOpen(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    window.localStorage.setItem('nike-mini-cart-open', String(miniCartOpen))
+  }, [miniCartOpen])
+
   return (
     <div className='text-black py-2 bg-gray-100 z-10'>
       <div className='container flex justify-between items-center'>
@@ -53,10 +72,12 @@ const Navbar2 = () => {
                 mixBlendMode: "difference"
               }}
             >
-              <Link to='/cart'> <div className='relative'>
-                <ShoppingCart /> <div className='bg-[#138695] w-5 absolute -top-3 -right-2 flex items-center justify-center rounded-full text-white'>{getTotalCartItems()}</div>
-              </div>
-              </Link>
+              <button type="button" onClick={openMiniCart} className='relative'>
+                <ShoppingCart />
+                <div className='bg-[#138695] w-5 absolute -top-3 -right-2 flex items-center justify-center rounded-full text-white text-[11px] font-semibold'>
+                  {getTotalCartItems()}
+                </div>
+              </button>
             </UpdateFollower>
             <UpdateFollower
               mouseOptions={{
@@ -68,9 +89,14 @@ const Navbar2 = () => {
               }}
             >
               {user ? (
-                <button type="button" onClick={signOut} className='text-sm ps-8 font-semibold uppercase'>
-                  Sign out
-                </button>
+                <div className='flex items-center gap-4 ps-8'>
+                  <Link to='/account' className='text-xl'>
+                    <FaRegUser />
+                  </Link>
+                  <button type="button" onClick={signOut} className='text-sm font-semibold uppercase'>
+                    Sign out
+                  </button>
+                </div>
               ) : (
                 <Link to='/auth' className='text-xl ps-8'>
                   <FaRegUser />
@@ -81,9 +107,12 @@ const Navbar2 = () => {
           </ul>
         </div>
         <div className='flex gap-8 md:hidden z-50'>
-          <Link to={'/cart'}><div className='relative w-10 z-50'>
-          <ShoppingCart /> <div className='bg-[#138695] z-40 w-5 absolute -top-2 right-1 flex items-center justify-center rounded-full text-white'>{getTotalCartItems()}</div>
-            </div></Link>
+          <button type="button" onClick={openMiniCart} className='relative w-10 z-50'>
+            <ShoppingCart />
+            <div className='bg-[#138695] z-40 w-5 absolute -top-2 right-1 flex items-center justify-center rounded-full text-white text-[11px] font-semibold'>
+              {getTotalCartItems()}
+            </div>
+          </button>
           {/* mobile hamburger menu */}
           {
             showMenu ? (
@@ -97,6 +126,7 @@ const Navbar2 = () => {
       <div>
         <ResponsiveMenu showMenu={showMenu} setShowMenu={setShowMenu} />
       </div>
+      <MiniCartDrawer open={miniCartOpen} onClose={closeMiniCart} />
     </div>
   )
 }

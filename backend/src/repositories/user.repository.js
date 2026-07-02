@@ -1,35 +1,29 @@
-const users = new Map();
-let nextUserId = 1;
+import { prisma } from '../lib/prisma.js';
 
 const create = async ({ name, email, passwordHash }) => {
-  const now = new Date().toISOString();
-  const user = {
-    id: nextUserId++,
-    name,
-    email: email.toLowerCase(),
-    passwordHash,
-    role: 'customer',
-    createdAt: now,
-    updatedAt: now,
-  };
-
-  users.set(user.id, user);
-  return user;
+  return prisma.user.create({
+    data: {
+      name,
+      email: email.toLowerCase(),
+      passwordHash,
+    },
+  });
 };
 
 const findByEmail = async (email) => {
-  const normalizedEmail = email.toLowerCase();
-
-  for (const user of users.values()) {
-    if (user.email === normalizedEmail) {
-      return user;
-    }
-  }
-
-  return null;
+  return prisma.user.findUnique({
+    where: {
+      email: email.toLowerCase(),
+    },
+  });
 };
 
-const findById = async (id) => users.get(id) ?? null;
+const findById = async (id) =>
+  prisma.user.findUnique({
+    where: {
+      id,
+    },
+  });
 
 export const userRepository = {
   create,

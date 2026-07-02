@@ -1,6 +1,6 @@
 import React, { useContext, useEffect } from 'react'
 import { ShopContext } from '../context/ShopContext'
-import { X } from 'lucide-react'
+import { Minus, Plus, X } from 'lucide-react'
 import EmptyCart from '../assets/EmptyCart.png'
 import { Link } from 'react-router-dom'
 
@@ -10,7 +10,15 @@ const Cart = () => {
     window.scrollTo(0, 0)
   }, [])
 
-  const { getTotalCartItems, all_product, cartItems, removeFromCart, getTotalCartAmount } = useContext(ShopContext)
+  const {
+    getTotalCartItems,
+    all_product,
+    cartItems,
+    increaseQuantity,
+    decreaseQuantity,
+    clearItemFromCart,
+    getTotalCartAmount,
+  } = useContext(ShopContext)
 
   return (
     <div>
@@ -33,9 +41,38 @@ const Cart = () => {
                     <img src={e.image} className='h-16 w-16 object-cover' alt="" />
                     <p>{e.name}</p>
                     <p className='hidden md:block'>${e.new_price}</p>
-                    <button className='w-16 h-12 bg-white border border-gray-300'>{cartItems[e.id]}</button>
+                    <div className='flex items-center justify-start'>
+                      <div className='flex items-center rounded-full border border-gray-300 bg-white'>
+                        <button
+                          type="button"
+                          onClick={() => decreaseQuantity(e.id)}
+                          className='px-3 py-2 text-gray-600 transition hover:bg-gray-100'
+                          aria-label={`Decrease ${e.name} quantity`}
+                        >
+                          <Minus size={14} />
+                        </button>
+                        <span className='min-w-10 px-3 text-center font-semibold text-gray-900'>
+                          {cartItems[e.id]}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => increaseQuantity(e.id)}
+                          className='px-3 py-2 text-gray-600 transition hover:bg-gray-100'
+                          aria-label={`Increase ${e.name} quantity`}
+                        >
+                          <Plus size={14} />
+                        </button>
+                      </div>
+                    </div>
                     <p className='hidden md:block'>${e.new_price * cartItems[e.id]}</p>
-                    <X onClick={() => { removeFromCart(e.id) }} className='cursor-pointer' />
+                    <button
+                      type="button"
+                      onClick={() => { clearItemFromCart(e.id) }}
+                      className='inline-flex justify-self-start rounded-full p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900'
+                      aria-label={`Remove ${e.name} from cart`}
+                    >
+                      <X size={18} />
+                    </button>
                   </div>
                   <hr className='bg-gray-300 border-0 h-[2px] my-2'/>
                 </div>
