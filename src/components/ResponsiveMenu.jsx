@@ -11,8 +11,8 @@ const ResponsiveMenu = ({showMenu, setShowMenu}) => {
         <div className='flex items-center justify-start gap-3'>
             <FaUserCircle size={50}/>
             <div>
-                <h1>Hello User</h1>
-                <h1 className='text-sm text-slate-500'>Premium User</h1>
+                <h1>Welcome</h1>
+                <h1 className='text-sm text-slate-500'>Nike Reimagined</h1>
             </div>
         </div>
         <nav className='mt-12'>
@@ -28,7 +28,7 @@ const ResponsiveMenu = ({showMenu, setShowMenu}) => {
         </nav>
       </div>
       <div>
-        <h1>Made with ❤️ by Aditya</h1>
+        <h1>Built with ❤️ for portfolio showcase.</h1>
       </div>
      
     </div>

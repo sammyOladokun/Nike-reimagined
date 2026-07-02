@@ -4,6 +4,7 @@ import Shoe1 from '../assets/Shoes1.png'
 import Shoe2 from '../assets/Shoes2.png'
 import Shoe3 from '../assets/Shoes3.png'
 import { motion, AnimatePresence, easeInOut } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import {UpdateFollower} from "react-mouse-follower"
 
 const SlideRight = (delay) => {
@@ -38,7 +39,7 @@ const ShoesData = [
     image: Shoe1,
     title: "Jordan Luka 3 PF",
     subtitle:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae iusto minima ad ut id eos iusto minima ad ut id eos ad ut id eos",
+      "Built for fast cuts, responsive comfort, and standout on-court energy.",
     price: "$40",
     modal: "Sports",
     bgColor: "#138695",
@@ -48,7 +49,7 @@ const ShoesData = [
     image: Shoe2,
     title: "Nike G.T. Cut 3 EP",
     subtitle:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae iusto minima ad ut id eos iusto minima ad ut id eos ad ut id eos",
+      "Designed for smooth movement, grip, and a lightweight feel from warmup to game time.",
     price: "$100",
     modal: "Running",
     bgColor: "#727272",
@@ -58,12 +59,14 @@ const ShoesData = [
     image: Shoe3,
     title: "Nike G.T. Cut Academy EP",
     subtitle:
-      "Lorem ipsum dolor sit amet consectetur adipisicing elit. Recusandae iusto minima ad ut id eos iusto minima ad ut id eos ad ut id eos",
+      "A dependable everyday hoop shoe with comfort, traction, and clean styling.",
     price: "$100",
     modal: "Sports",
     bgColor: "#698869",
   },
 ];
+
+const MotionLink = motion(Link);
 
 const Hero = () => {
   const [activeData, setActiveData] = useState(ShoesData[0]);
@@ -87,16 +90,6 @@ const Hero = () => {
           <div className='flex flex-col justify-center py-14 md:py-0 xl:max-w-[500px] text-white order-2 md:order-1'>
             <div className='space-y-5 text-center md:text-left'>
               <AnimatePresence mode='wait'>
-                <UpdateFollower
-                mouseOptions={{
-                  backgroundColor:'white',
-                  zIndex:9999,
-                  followSpeed:0.5,
-                  rotate: -720,
-                  mixBlendMode: 'difference',
-                  scale: 10,
-                }}
-                >
                 <motion.h1
                   key={activeData.id}
                   variants={SlideRight(0.2)}
@@ -104,7 +97,6 @@ const Hero = () => {
                   animate="show"
                   exit="exit"
                   className='text-3xl lg:text-6xl xl:text-7xl font-bold font-handwriting text-shadow'>{activeData.title}</motion.h1>
-                  </UpdateFollower>
               </AnimatePresence>
               <AnimatePresence mode='wait'>
                 <motion.p
@@ -133,14 +125,17 @@ const Hero = () => {
                   )
                 }}
                 >
-              <motion.button
+              <MotionLink
                 key={activeData.id}
+                to="/mens"
                 variants={SlideRight(0.6)}
                 initial="hidden"
                 animate="show"
                 exit="exit"
                 style={{color: activeData.bgColor}}
-                className='px-4 py-2 bg-white inline-block font-normal rounded-md'>Order Now</motion.button>
+                className='px-4 py-2 bg-white inline-flex items-center font-normal rounded-md'>
+                Order Now
+              </MotionLink>
                 </UpdateFollower>
                 </AnimatePresence>
               {/* list seperator */}
@@ -162,16 +157,6 @@ const Hero = () => {
                 {
                   ShoesData.map((data, index) => {
                     return (
-                      <UpdateFollower key={index}
-                      mouseOptions={{
-                        backgroundColor: data.bgColor,
-                        zIndex: 9999,
-                        followSpeed: 0.5,
-                        scale: 5,
-                        text: "View Details",
-                        textFontSize:'3px'
-                      }}
-                      >
                       <div key={data.id}
                         onClick={() => handleActiveData(data)}
                         className='cursor-pointer space-y-3 hover:scale-105 transition-all duration-200'>
@@ -183,7 +168,6 @@ const Hero = () => {
                           <p className='text-xl font-bold'>{data.price}</p>
                         </div>
                       </div>
-                      </UpdateFollower>
                     )
                   })
                 }
@@ -226,6 +210,3 @@ const Hero = () => {
 }
 
 export default Hero
-
-
-

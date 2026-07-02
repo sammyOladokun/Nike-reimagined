@@ -5,7 +5,6 @@ import { ShoppingCart } from 'lucide-react';
 import { FaRegUser } from "react-icons/fa";
 import { HiMenuAlt1, HiMenuAlt3, } from "react-icons/hi";
 import ResponsiveMenu from './ResponsiveMenu';
-import { UpdateFollower } from 'react-mouse-follower';
 import { useAuth } from '../context/AuthContext';
 import { ShopContext } from '../context/ShopContext';
 import MiniCartDrawer from './MiniCartDrawer';
@@ -19,12 +18,12 @@ export const NavbarMenu = [
   },
   {
     id: 2,
-    title: "Mens",
+    title: "Men",
     link: "/mens",
   },
   {
     id: 3,
-    title: "Womens",
+    title: "Women",
     link: "/womens",
   },
   {
@@ -76,61 +75,31 @@ const Navbar = () => {
           <ul className='flex items-center gap-4 relative z-40'>
             {NavbarMenu.map((item, index) => (
               <li key={index}>
-                <UpdateFollower
-                mouseOptions={{
-                  backgroundColor: "white",
-                  zIndex: 9999,
-                  followSpeed: 1.5,
-                  scale:5,
-                  mixBlendMode: "difference"
-                }}
-                >
                 <Link to={item.link} className='inline-block text-base font-semibold py-2 px-3 uppercase'>
                   {item.title}
                 </Link>
-                </UpdateFollower>
               </li>
             ))}
-            <UpdateFollower 
-             mouseOptions={{
-              backgroundColor: "white",
-              zIndex: 9999,
-              followSpeed: 1.5,
-              scale:5,
-              mixBlendMode: "difference"
-            }}
-            >
-            <button type="button" onClick={openMiniCart} className='relative text-xl ps-14'>
+            <button type="button" onClick={openMiniCart} className='relative inline-flex h-10 w-10 items-center justify-center text-xl'>
               <ShoppingCart />
               <span className='absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#138695] px-1 text-[11px] font-semibold text-white'>
                 {getTotalCartItems()}
               </span>
             </button>
-            </UpdateFollower>
-            <UpdateFollower
-             mouseOptions={{
-              backgroundColor: "white",
-              zIndex: 9999,
-              followSpeed: 1.5,
-              scale:5,
-              mixBlendMode: "difference"
-            }}
-            >
             {user ? (
-              <div className='flex items-center gap-4 ps-8'>
-                <Link to='/account' className='text-xl'>
-                  <FaRegUser />
+              <div className='ml-8 flex items-center gap-4'>
+                <Link to='/account' className='inline-flex h-10 w-10 items-center justify-center text-xl'>
+                  <FaRegUser size={24} />
                 </Link>
                 <button type="button" onClick={signOut} className='text-sm font-semibold uppercase'>
                   Sign out
                 </button>
               </div>
             ) : (
-              <Link to='/auth' className='text-xl ps-8'>
-                <FaRegUser />
+              <Link to='/auth' className='ml-8 inline-flex h-10 w-10 items-center justify-center shrink-0'>
+                <FaRegUser size={22} />
               </Link>
             )}
-            </UpdateFollower>
 
           </ul>
         </div>

@@ -4,7 +4,6 @@ import Home from './Pages/Home'
 import Contact from './Pages/Contact'
 import Cart from './Pages/Cart'
 import Footer from './components/Footer'
-import { UpdateFollower } from 'react-mouse-follower'
 import ProductList from './components/ProductList'
 import Navbar2 from './components/Navbar2'
 import SingleProduct from './components/SingleProduct'
@@ -64,15 +63,7 @@ const router = createBrowserRouter([
 const App = () => {
   return (
     <main className='overflow-x-hidden'>
-      <UpdateFollower
-      mouseOptions={{
-        backgroundColor: "white",
-        zIndex: 10,
-        followSpeed: 1.5,
-      }}
-      >
      <RouterProvider router={router}/>
-     </UpdateFollower>
     </main>
   )
 }

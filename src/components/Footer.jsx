@@ -107,11 +107,13 @@ const Footer = () => {
       {/* Copyright */}
       <div className="bg-gray-800 text-center py-5 text-sm tracking-wide border-t border-gray-700">
         <p className="text-gray-400">
-          &copy; {new Date().getFullYear()} Nike Shoes | Designed by{" "}
-          <span className="text-white font-semibold">
-            Aditya Domle
-          </span>
-          . All rights reserved.
+          &copy; {new Date().getFullYear()} Nike Shoes | Built for portfolio showcase.
+        </p>
+        <p className="mt-2 text-xs text-gray-500">
+          Built with React, Tailwind CSS, Vite, Express, Prisma, and PostgreSQL.
+        </p>
+        <p className="mt-1 text-xs text-gray-500">
+          Designed by <span className="font-semibold text-gray-300">SammyOladokun</span> • All rights reserved.
         </p>
       </div>
     </footer>

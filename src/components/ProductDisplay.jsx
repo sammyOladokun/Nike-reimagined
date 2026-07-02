@@ -35,7 +35,7 @@ const ProductDisplay = (props) => {
                     <div className='text-[#138695] text-3xl'>${product.new_price}</div>
                 </div>
                 <div>
-                    Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam dolore voluptatem nesciunt facere totam suscipit illum laboriosam nulla, corporis amet consequuntur, fugiat modi voluptate libero?
+                    Designed for all-day comfort, reliable support, and a clean everyday look.
                 </div>
                 <div>
                     <h1 className='font-semibold text-gray-400 text-2xl mt-4'>Select Size</h1>
@@ -50,8 +50,8 @@ const ProductDisplay = (props) => {
                 <Link to='/cart'>
                     <button onClick={() => { addToCart(product.id) }} className='bg-[#138695] text-white px-6 py-3 my-4 w-max'>ADD TO CART</button>
                 </Link>
-                <p><span className='font-semibold'>Category :</span> Sports, Gym, Running</p>
-                <p><span className='font-semibold'>Tags :</span> Modern, Latest</p>
+                <p><span className='font-semibold'>Category:</span> Sports, Gym, Running</p>
+                <p><span className='font-semibold'>Tags:</span> Modern, Latest</p>
             </div>
         </div>
     )
