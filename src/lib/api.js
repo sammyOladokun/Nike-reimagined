@@ -37,15 +37,27 @@ export const clearStoredAccessToken = () => setStoredAccessToken(null);
 
 export const apiRequest = async (path, options = {}) => {
   const storedToken = getStoredAccessToken();
-  const response = await fetch(buildUrl(path), {
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(storedToken ? { Authorization: `Bearer ${storedToken}` } : {}),
-      ...(options.headers ?? {}),
-    },
-    ...options,
-  });
+  const requestUrl = buildUrl(path);
+
+  let response;
+
+  try {
+    response = await fetch(requestUrl, {
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(storedToken ? { Authorization: `Bearer ${storedToken}` } : {}),
+        ...(options.headers ?? {}),
+      },
+      ...options,
+    });
+  } catch (error) {
+    const networkError = new Error(`Could not reach the API at ${requestUrl}`);
+    networkError.cause = error;
+    networkError.status = 0;
+    networkError.details = { message: 'Network request failed', requestUrl };
+    throw networkError;
+  }
 
   const data = await response.json().catch(() => ({}));
 
