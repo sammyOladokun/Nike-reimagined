@@ -5,7 +5,7 @@ import Shoe2 from '../assets/Shoes2.png'
 import Shoe3 from '../assets/Shoes3.png'
 import { motion, AnimatePresence, easeInOut } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import {UpdateFollower} from "react-mouse-follower"
+import { UpdateFollower } from 'react-mouse-follower'
 
 const SlideRight = (delay) => {
   return {
@@ -74,6 +74,21 @@ const Hero = () => {
   const handleActiveData = (data) => {
     setActiveData(data);
   }
+
+  const orderButton = (
+    <MotionLink
+      key={activeData.id}
+      to="/mens"
+      variants={SlideRight(0.6)}
+      initial="hidden"
+      animate="show"
+      exit="exit"
+      style={{ color: activeData.bgColor }}
+      className='px-4 py-2 bg-white inline-flex items-center font-normal rounded-md'>
+      Order Now
+    </MotionLink>
+  );
+
   return (
     <>
       <motion.section
@@ -110,34 +125,28 @@ const Hero = () => {
                 </motion.p>
                 
               </AnimatePresence>
-              <AnimatePresence mode='wait'>
-              <UpdateFollower
-                mouseOptions={{
-                  backgroundColor:activeData.bgColor,
-                  zIndex:9999,
-                  followSpeed: 0.5,
-                  rotate: -720,
-                  scale: 6,
-                  backgroundElement: (
-                    <div>
-                      <img src={activeData.image}/>
-                    </div>
-                  )
-                }}
+              <div className="md:hidden">
+                {orderButton}
+              </div>
+              <div className="hidden md:block">
+                <UpdateFollower
+                  mouseOptions={{
+                    visible: true,
+                    backgroundColor: activeData.bgColor,
+                    zIndex: 9999,
+                    followSpeed: 0.5,
+                    rotate: -720,
+                    scale: 6,
+                    backgroundElement: (
+                      <div>
+                        <img src={activeData.image} alt="" />
+                      </div>
+                    )
+                  }}
                 >
-              <MotionLink
-                key={activeData.id}
-                to="/mens"
-                variants={SlideRight(0.6)}
-                initial="hidden"
-                animate="show"
-                exit="exit"
-                style={{color: activeData.bgColor}}
-                className='px-4 py-2 bg-white inline-flex items-center font-normal rounded-md'>
-                Order Now
-              </MotionLink>
+                  {orderButton}
                 </UpdateFollower>
-                </AnimatePresence>
+              </div>
               {/* list seperator */}
               <motion.div
                 initial={{ opacity: 0 }}
