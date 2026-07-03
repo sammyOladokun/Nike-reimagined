@@ -6,19 +6,19 @@ import { cartRepository } from '../repositories/cart.repository.js';
 import { orderRepository } from '../repositories/order.repository.js';
 
 const orderItemSchema = z.object({
-  productId: z.number().int().positive(),
-  productName: z.string().min(2),
-  unitPrice: z.number().positive(),
-  quantity: z.number().int().positive(),
+  productId: z.number().int().positive('Select a valid product'),
+  productName: z.string().trim().min(2, 'Product name is required'),
+  unitPrice: z.number().positive('Product price must be greater than zero'),
+  quantity: z.number().int().positive('Quantity must be at least 1'),
 });
 
 const checkoutSchema = z.object({
-  customerName: z.string().min(2),
-  customerEmail: z.string().email().optional(),
-  shippingAddress: z.string().min(5),
-  city: z.string().min(2),
-  postalCode: z.string().min(3),
-  items: z.array(orderItemSchema).min(1),
+  customerName: z.string().trim().min(2, 'Full name must be at least 2 characters long'),
+  customerEmail: z.string().trim().email('Enter a valid email address').optional(),
+  shippingAddress: z.string().trim().min(5, 'Shipping address must be at least 5 characters long'),
+  city: z.string().trim().min(2, 'City is required'),
+  postalCode: z.string().trim().min(3, 'Postal code is required'),
+  items: z.array(orderItemSchema).min(1, 'Add at least one item before checking out'),
 });
 
 const toDecimal = (value) => new Prisma.Decimal(value.toFixed(2));

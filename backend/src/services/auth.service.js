@@ -6,9 +6,9 @@ import { conflict, unauthorized } from '../lib/errors.js';
 import { userRepository } from '../repositories/user.repository.js';
 
 const authPayloadSchema = z.object({
-  name: z.string().min(2).optional(),
-  email: z.string().email(),
-  password: z.string().min(8),
+  name: z.string().trim().min(2, 'Full name must be at least 2 characters long').optional(),
+  email: z.string().trim().email('Enter a valid email address'),
+  password: z.string().min(8, 'Password must be at least 8 characters long'),
 });
 
 const issueToken = (user) =>

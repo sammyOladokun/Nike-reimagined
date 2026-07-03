@@ -4,6 +4,8 @@ import { ShopContext } from '../context/ShopContext';
 import { useAuth } from '../context/AuthContext';
 import { apiRequest } from '../lib/api';
 
+const getFirstError = (value) => (Array.isArray(value) ? value[0] : value);
+
 const Checkout = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
@@ -16,6 +18,7 @@ const Checkout = () => {
     postalCode: '',
   });
   const [errorMessage, setErrorMessage] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const items = useMemo(
@@ -32,6 +35,7 @@ const Checkout = () => {
     event.preventDefault();
     setIsSubmitting(true);
     setErrorMessage('');
+    setFieldErrors({});
 
     try {
       const payload = {
@@ -60,7 +64,18 @@ const Checkout = () => {
         },
       });
     } catch (error) {
-      setErrorMessage(error.message);
+      const nextFieldErrors = {
+        fullName: getFirstError(error.fieldErrors?.customerName),
+        email: getFirstError(error.fieldErrors?.customerEmail),
+        address: getFirstError(error.fieldErrors?.shippingAddress),
+        city: getFirstError(error.fieldErrors?.city),
+        postalCode: getFirstError(error.fieldErrors?.postalCode),
+      };
+
+      setFieldErrors(nextFieldErrors);
+
+      const hasFieldErrors = Object.values(nextFieldErrors).some(Boolean);
+      setErrorMessage(hasFieldErrors ? '' : error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -123,6 +138,9 @@ const Checkout = () => {
                   className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#138695]"
                   placeholder="guest@example.com"
                 />
+                {fieldErrors.email && (
+                  <p className="mt-2 text-sm text-red-600">{fieldErrors.email}</p>
+                )}
               </div>
               <Link
                 to="/auth?returnTo=/checkout"
@@ -146,6 +164,9 @@ const Checkout = () => {
                 required
                 className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#138695]"
               />
+              {fieldErrors.fullName && (
+                <p className="mt-2 text-sm text-red-600">{fieldErrors.fullName}</p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700" htmlFor="postalCode">
@@ -159,6 +180,9 @@ const Checkout = () => {
                 required
                 className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#138695]"
               />
+              {fieldErrors.postalCode && (
+                <p className="mt-2 text-sm text-red-600">{fieldErrors.postalCode}</p>
+              )}
             </div>
           </div>
 
@@ -174,6 +198,9 @@ const Checkout = () => {
               required
               className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#138695]"
             />
+            {fieldErrors.address && (
+              <p className="mt-2 text-sm text-red-600">{fieldErrors.address}</p>
+            )}
           </div>
 
           <div>
@@ -188,9 +215,12 @@ const Checkout = () => {
               required
               className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#138695]"
             />
+            {fieldErrors.city && (
+              <p className="mt-2 text-sm text-red-600">{fieldErrors.city}</p>
+            )}
           </div>
 
-          {errorMessage && (
+          {errorMessage && !Object.values(fieldErrors).some(Boolean) && (
             <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{errorMessage}</p>
           )}
 

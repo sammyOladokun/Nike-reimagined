@@ -33,7 +33,11 @@ export const AuthProvider = ({ children }) => {
       setUser(result.user);
       return result;
     } catch (error) {
-      setAuthError(error.message);
+      const hasFieldErrors = error.fieldErrors && Object.values(error.fieldErrors).some((messages) => Array.isArray(messages) ? messages.length > 0 : Boolean(messages));
+
+      if (!hasFieldErrors) {
+        setAuthError(error.message);
+      }
       throw error;
     }
   };

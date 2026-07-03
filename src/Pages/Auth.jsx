@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
+const getFirstError = (value) => (Array.isArray(value) ? value[0] : value);
+
 const Auth = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { signIn, signUp, authError, isLoading } = useAuth();
   const [mode, setMode] = useState('signin');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState({});
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -24,6 +27,7 @@ const Auth = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setIsSubmitting(true);
+    setFieldErrors({});
 
     try {
       if (mode === 'signup') {
@@ -36,6 +40,22 @@ const Auth = () => {
       }
 
       navigate(returnTo, { replace: true });
+    } catch (error) {
+      const nextFieldErrors = {};
+
+      if (error.fieldErrors?.name) {
+        nextFieldErrors.name = getFirstError(error.fieldErrors.name);
+      }
+
+      if (error.fieldErrors?.email) {
+        nextFieldErrors.email = getFirstError(error.fieldErrors.email);
+      }
+
+      if (error.fieldErrors?.password) {
+        nextFieldErrors.password = getFirstError(error.fieldErrors.password);
+      }
+
+      setFieldErrors(nextFieldErrors);
     } finally {
       setIsSubmitting(false);
     }
@@ -105,6 +125,9 @@ const Auth = () => {
                   className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#138695]"
                   placeholder="Your name"
                 />
+                {fieldErrors.name && (
+                  <p className="mt-2 text-sm text-red-600">{fieldErrors.name}</p>
+                )}
               </div>
             )}
 
@@ -121,6 +144,9 @@ const Auth = () => {
                 className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#138695]"
                 placeholder="you@example.com"
               />
+              {fieldErrors.email && (
+                <p className="mt-2 text-sm text-red-600">{fieldErrors.email}</p>
+              )}
             </div>
 
             <div>
@@ -136,9 +162,12 @@ const Auth = () => {
                 className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#138695]"
                 placeholder="At least 8 characters"
               />
+              {fieldErrors.password && (
+                <p className="mt-2 text-sm text-red-600">{fieldErrors.password}</p>
+              )}
             </div>
 
-            {authError && (
+            {authError && !Object.keys(fieldErrors).length && (
               <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">{authError}</p>
             )}
 

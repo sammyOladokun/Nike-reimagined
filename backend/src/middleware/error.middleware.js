@@ -3,8 +3,11 @@ import { AppError } from '../lib/errors.js';
 
 export const errorHandler = (error, _request, response, _next) => {
   if (error instanceof ZodError) {
+    const flattened = error.flatten();
+
     return response.status(400).json({
-      message: 'Validation failed',
+      message: error.issues[0]?.message ?? 'Validation failed',
+      fieldErrors: flattened.fieldErrors,
       issues: error.issues,
     });
   }
