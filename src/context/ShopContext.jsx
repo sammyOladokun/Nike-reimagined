@@ -5,13 +5,46 @@ import { apiRequest } from '../lib/api';
 
 export const ShopContext = createContext(null);
 
-const getDefaultCart = ()=> {
-    let cart = {};
-    for (let index= 0; index<all_product.length+1; index++){
-        cart[index] = 0
+const CART_KEY_SEPARATOR = '::';
+const DEFAULT_SIZE = 'UK 9';
+
+const getLineKey = (itemId, size = DEFAULT_SIZE) => `${itemId}${CART_KEY_SEPARATOR}${size}`;
+
+const parseLineKey = (lineKey) => {
+    const [productIdPart, ...sizeParts] = String(lineKey).split(CART_KEY_SEPARATOR);
+    const productId = Number(productIdPart);
+    const size = sizeParts.join(CART_KEY_SEPARATOR).trim() || DEFAULT_SIZE;
+
+    return {
+        productId,
+        size,
+    };
+};
+
+const getDefaultCart = () => ({});
+
+const normalizeCartShape = (cart = {}) => {
+    const normalized = {};
+
+    for (const [lineKey, rawQuantity] of Object.entries(cart)) {
+        const quantity = Number(rawQuantity);
+
+        if (!Number.isFinite(quantity) || quantity <= 0) {
+            continue;
+        }
+
+        const { productId, size } = parseLineKey(lineKey);
+
+        if (!productId) {
+            continue;
+        }
+
+        const normalizedLineKey = getLineKey(productId, size);
+        normalized[normalizedLineKey] = (normalized[normalizedLineKey] ?? 0) + quantity;
     }
-    return cart;
-}
+
+    return normalized;
+};
 
 const readGuestCart = () => {
     if (typeof window === 'undefined') {
@@ -25,17 +58,17 @@ const readGuestCart = () => {
     }
 
     try {
-        return JSON.parse(storedCart);
+        return normalizeCartShape(JSON.parse(storedCart));
     } catch {
         return getDefaultCart();
     }
 }
 
 const mergeCarts = (baseCart, incomingCart) => {
-    const merged = getDefaultCart();
+    const merged = normalizeCartShape(baseCart);
 
-    for (const productId of Object.keys(merged)) {
-        merged[productId] = (baseCart[productId] ?? 0) + (incomingCart[productId] ?? 0);
+    for (const [lineKey, quantity] of Object.entries(normalizeCartShape(incomingCart))) {
+        merged[lineKey] = (merged[lineKey] ?? 0) + quantity;
     }
 
     return merged;
@@ -109,32 +142,39 @@ const ShopContextProvider = (props) => {
         window.localStorage.setItem('nike-reimagined-cart', JSON.stringify(cartItems));
     }, [cartItems, user, isAuthLoading]);
 
-    const increaseQuantity = (itemId) => {
-        setCartItems((prev) => ({ ...prev, [itemId]: (prev[itemId] ?? 0) + 1 }))
+    const increaseQuantity = (lineKey) => {
+        setCartItems((prev) => ({ ...prev, [lineKey]: (prev[lineKey] ?? 0) + 1 }))
     }
 
-    const decreaseQuantity = (itemId) => {
+    const decreaseQuantity = (lineKey) => {
         setCartItems((prev) => {
-            const currentQuantity = prev[itemId] ?? 0;
+            const currentQuantity = prev[lineKey] ?? 0;
 
             if (currentQuantity <= 1) {
-                return { ...prev, [itemId]: 0 };
+                const nextCart = { ...prev };
+                delete nextCart[lineKey];
+                return nextCart;
             }
 
-            return { ...prev, [itemId]: currentQuantity - 1 };
+            return { ...prev, [lineKey]: currentQuantity - 1 };
         })
     }
 
-    const addToCart = (itemId) => {
-        increaseQuantity(itemId)
+    const addToCart = (itemId, size = DEFAULT_SIZE) => {
+        const lineKey = getLineKey(itemId, size);
+        increaseQuantity(lineKey)
     }
 
-    const removeFromCart = (itemId) => {
-        decreaseQuantity(itemId)
+    const removeFromCart = (lineKey) => {
+        decreaseQuantity(lineKey)
     }
 
-    const clearItemFromCart = (itemId) => {
-        setCartItems((prev) => ({ ...prev, [itemId]: 0 }))
+    const clearItemFromCart = (lineKey) => {
+        setCartItems((prev) => {
+            const nextCart = { ...prev };
+            delete nextCart[lineKey];
+            return nextCart;
+        })
     }
 
     const clearCart = () => {
@@ -150,33 +190,46 @@ const ShopContextProvider = (props) => {
         }
     }
 
-    const getTotalCartAmount = ()=> {
-        let totalAmount = 0;
-        for (const item in cartItems)
-        {
-            if(cartItems[item]>0)
-            {
-                let itemInfo = all_product.find((product)=>product.id===Number(item))
-                totalAmount += cartItems[item] * itemInfo.new_price;
-            }
-        }
-        return totalAmount;
+    const getCartLineItems = () =>
+        Object.entries(cartItems)
+            .map(([lineKey, quantity]) => {
+                const numericQuantity = Number(quantity);
+
+                if (numericQuantity <= 0) {
+                    return null;
+                }
+
+                const { productId, size } = parseLineKey(lineKey);
+                const product = all_product.find((entry) => entry.id === productId);
+
+                if (!product) {
+                    return null;
+                }
+
+                return {
+                    lineKey,
+                    product,
+                    productId,
+                    size,
+                    quantity: numericQuantity,
+                    subtotal: product.new_price * numericQuantity,
+                };
+            })
+            .filter(Boolean);
+
+    const getTotalCartAmount = () => {
+        return getCartLineItems().reduce((totalAmount, item) => totalAmount + item.subtotal, 0);
     }
 
-    const getTotalCartItems = ()=> {
-        let totalItem = 0;
-        for (const item in cartItems)
-        {
-            if(cartItems[item]>0)
-            {
-                totalItem += cartItems[item]
-            }
-        }
-        return totalItem;
+    const getTotalCartItems = () => {
+        return getCartLineItems().reduce((totalItem, item) => totalItem + item.quantity, 0);
     }
     const contextValue = {
         all_product,
         cartItems,
+        getLineKey,
+        parseLineKey,
+        getCartLineItems,
         addToCart,
         removeFromCart,
         increaseQuantity,

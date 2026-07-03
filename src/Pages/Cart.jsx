@@ -12,74 +12,75 @@ const Cart = () => {
 
   const {
     getTotalCartItems,
-    all_product,
-    cartItems,
+    getCartLineItems,
     increaseQuantity,
     decreaseQuantity,
     clearItemFromCart,
     getTotalCartAmount,
   } = useContext(ShopContext)
 
+  const cartLineItems = getCartLineItems()
+
   return (
     <div>
       <div className='max-w-7xl mx-auto my-10 p-4'>
         {getTotalCartItems() === 0 ? <div className='flex items-center justify-center'><img src={EmptyCart} alt='' /></div> : <div>
-          <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-[0.5fr,2fr,1fr,1fr,1fr,1fr] items-center px-4'>
+          <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-[0.5fr,2fr,0.8fr,1fr,1fr,1fr] items-center px-4'>
             <p>Products</p>
             <p>Title</p>
+            <p className='hidden md:block'>Size</p>
             <p className='hidden md:block'>Price</p>
             <p className='hidden md:block'>Quantity</p>
             <p className='hidden md:block'>Total</p>
             <p className='hidden md:block'>Remove</p>
           </div>
           <hr className='bg-gray-300 border-0 h-[2px] my-2' />
-          {all_product.map((e) => {
-            if (cartItems[e.id] > 0) {
-              return (
-                <div key={e.id}>
-                  <div className='text-gray-500 font-semibold text-sm sm:text-base grid grid-cols-2 sm:grid-cols-3 md:grid-cols-[0.5fr,2fr,1fr,1fr,1fr,1fr] items-center px-4 gap-2'>
-                    <img src={e.image} className='h-16 w-16 object-cover' alt="" />
-                    <p>{e.name}</p>
-                    <p className='hidden md:block'>${e.new_price}</p>
-                    <div className='flex items-center justify-start'>
-                      <div className='flex items-center rounded-full border border-gray-300 bg-white'>
-                        <button
-                          type="button"
-                          onClick={() => decreaseQuantity(e.id)}
-                          className='px-3 py-2 text-gray-600 transition hover:bg-gray-100'
-                          aria-label={`Decrease ${e.name} quantity`}
-                        >
-                          <Minus size={14} />
-                        </button>
-                        <span className='min-w-10 px-3 text-center font-semibold text-gray-900'>
-                          {cartItems[e.id]}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => increaseQuantity(e.id)}
-                          className='px-3 py-2 text-gray-600 transition hover:bg-gray-100'
-                          aria-label={`Increase ${e.name} quantity`}
-                        >
-                          <Plus size={14} />
-                        </button>
-                      </div>
-                    </div>
-                    <p className='hidden md:block'>${e.new_price * cartItems[e.id]}</p>
+          {cartLineItems.map((item) => (
+            <div key={item.lineKey}>
+              <div className='text-gray-500 font-semibold text-sm sm:text-base grid grid-cols-2 sm:grid-cols-3 md:grid-cols-[0.5fr,2fr,0.8fr,1fr,1fr,1fr] items-center px-4 gap-2'>
+                <img src={item.product.image} className='h-16 w-16 object-cover' alt="" />
+                <div>
+                  <p>{item.product.name}</p>
+                  <p className='mt-1 text-xs text-gray-400 md:hidden'>Size: {item.size}</p>
+                </div>
+                <p className='hidden md:block'>{item.size}</p>
+                <p className='hidden md:block'>${item.product.new_price}</p>
+                <div className='flex items-center justify-start'>
+                  <div className='flex items-center rounded-full border border-gray-300 bg-white'>
                     <button
                       type="button"
-                      onClick={() => { clearItemFromCart(e.id) }}
-                      className='inline-flex justify-self-start rounded-full p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900'
-                      aria-label={`Remove ${e.name} from cart`}
+                      onClick={() => decreaseQuantity(item.lineKey)}
+                      className='px-3 py-2 text-gray-600 transition hover:bg-gray-100'
+                      aria-label={`Decrease ${item.product.name} quantity`}
                     >
-                      <X size={18} />
+                      <Minus size={14} />
+                    </button>
+                    <span className='min-w-10 px-3 text-center font-semibold text-gray-900'>
+                      {item.quantity}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => increaseQuantity(item.lineKey)}
+                      className='px-3 py-2 text-gray-600 transition hover:bg-gray-100'
+                      aria-label={`Increase ${item.product.name} quantity`}
+                    >
+                      <Plus size={14} />
                     </button>
                   </div>
-                  <hr className='bg-gray-300 border-0 h-[2px] my-2'/>
                 </div>
-              )
-            }
-            return null;
-          })}
+                <p className='hidden md:block'>${item.subtotal}</p>
+                <button
+                  type="button"
+                  onClick={() => { clearItemFromCart(item.lineKey) }}
+                  className='inline-flex justify-self-start rounded-full p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900'
+                  aria-label={`Remove ${item.product.name} from cart`}
+                >
+                  <X size={18} />
+                </button>
+              </div>
+              <hr className='bg-gray-300 border-0 h-[2px] my-2'/>
+            </div>
+          ))}
           <div className='flex flex-col lg:flex-row my-12 gap-10 md:gap-32'>
             <div className='flex-1 flex flex-col gap-4'>
               <h1 className='text-lg font-bold'>Cart Totals</h1>

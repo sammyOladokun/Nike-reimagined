@@ -5,8 +5,7 @@ import { ShopContext } from '../context/ShopContext'
 
 const MiniCartDrawer = ({ open, onClose }) => {
   const {
-    all_product,
-    cartItems,
+    getCartLineItems,
     increaseQuantity,
     decreaseQuantity,
     clearItemFromCart,
@@ -14,7 +13,7 @@ const MiniCartDrawer = ({ open, onClose }) => {
     getTotalCartItems,
   } = useContext(ShopContext)
 
-  const cartProducts = all_product.filter((product) => cartItems[product.id] > 0)
+  const cartLineItems = getCartLineItems()
 
   useEffect(() => {
     const handleEscape = (event) => {
@@ -73,65 +72,62 @@ const MiniCartDrawer = ({ open, onClose }) => {
             </div>
           ) : (
             <div className="space-y-4">
-              {cartProducts.map((product) => {
-                const quantity = cartItems[product.id]
+              {cartLineItems.map((item) => (
+                <div key={item.lineKey} className="rounded-2xl border border-gray-200 p-4">
+                  <div className="flex gap-4">
+                    <img
+                      src={item.product.image}
+                      alt={item.product.name}
+                      className="h-20 w-20 rounded-xl object-cover"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="truncate font-semibold text-gray-900">{item.product.name}</p>
+                          <p className="text-sm text-gray-500">${item.product.new_price} each</p>
+                          <p className="text-xs text-gray-400">Size {item.size}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => clearItemFromCart(item.lineKey)}
+                          className="rounded-full p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
+                          aria-label={`Remove ${item.product.name} from cart`}
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
 
-                return (
-                  <div key={product.id} className="rounded-2xl border border-gray-200 p-4">
-                    <div className="flex gap-4">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="h-20 w-20 rounded-xl object-cover"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="min-w-0">
-                            <p className="truncate font-semibold text-gray-900">{product.name}</p>
-                            <p className="text-sm text-gray-500">${product.new_price} each</p>
-                          </div>
+                      <div className="mt-4 flex items-center justify-between">
+                        <div className="flex items-center rounded-full border border-gray-200">
                           <button
                             type="button"
-                            onClick={() => clearItemFromCart(product.id)}
-                            className="rounded-full p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700"
-                            aria-label={`Remove ${product.name} from cart`}
+                            onClick={() => decreaseQuantity(item.lineKey)}
+                            className="px-3 py-2 text-gray-600 transition hover:bg-gray-100"
+                            aria-label={`Decrease ${item.product.name} quantity`}
                           >
-                            <X size={16} />
+                            <Minus size={14} />
+                          </button>
+                          <span className="min-w-10 px-3 text-center text-sm font-semibold text-gray-900">
+                            {item.quantity}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => increaseQuantity(item.lineKey)}
+                            className="px-3 py-2 text-gray-600 transition hover:bg-gray-100"
+                            aria-label={`Increase ${item.product.name} quantity`}
+                          >
+                            <Plus size={14} />
                           </button>
                         </div>
 
-                        <div className="mt-4 flex items-center justify-between">
-                          <div className="flex items-center rounded-full border border-gray-200">
-                            <button
-                              type="button"
-                              onClick={() => decreaseQuantity(product.id)}
-                              className="px-3 py-2 text-gray-600 transition hover:bg-gray-100"
-                              aria-label={`Decrease ${product.name} quantity`}
-                            >
-                              <Minus size={14} />
-                            </button>
-                            <span className="min-w-10 px-3 text-center text-sm font-semibold text-gray-900">
-                              {quantity}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => increaseQuantity(product.id)}
-                              className="px-3 py-2 text-gray-600 transition hover:bg-gray-100"
-                              aria-label={`Increase ${product.name} quantity`}
-                            >
-                              <Plus size={14} />
-                            </button>
-                          </div>
-
-                          <p className="text-sm font-semibold text-gray-900">
-                            ${product.new_price * quantity}
-                          </p>
-                        </div>
+                        <p className="text-sm font-semibold text-gray-900">
+                          ${item.subtotal}
+                        </p>
                       </div>
                     </div>
                   </div>
-                )
-              })}
+                </div>
+              ))}
             </div>
           )}
         </div>

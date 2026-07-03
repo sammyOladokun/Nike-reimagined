@@ -1,12 +1,16 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useMemo, useState } from 'react'
 import { ShopContext } from '../context/ShopContext'
 import { Star } from 'lucide-react'
 import { Link } from 'react-router-dom'
+
+const SIZE_OPTIONS = ['UK 7', 'UK 8', 'UK 9', 'UK 10', 'UK 11']
 
 const ProductDisplay = (props) => {
     const { product } = props
     const { addToCart } = useContext(ShopContext)
     const [mainImage, setMainImage] = useState(product.image)
+    const defaultSize = useMemo(() => SIZE_OPTIONS[2], [])
+    const [selectedSize, setSelectedSize] = useState(defaultSize)
     return (
         <div className='grid grid-cols-1 md:grid-cols-2 my-20 md:gap-10 px-6 md:px-0'>
             <div className='flex md:1/2 gap-4'>
@@ -40,15 +44,29 @@ const ProductDisplay = (props) => {
                 <div>
                     <h1 className='font-semibold text-gray-400 text-2xl mt-4'>Select Size</h1>
                     <div className='flex flex-wrap gap-4 items-center my-4'>
-                        <div className='border bg-gray-100 p-4'>UK 7</div>
-                        <div className='border bg-gray-100 p-4'>UK 8</div>
-                        <div className='border bg-gray-100 p-4'>UK 9</div>
-                        <div className='border bg-gray-100 p-4'>UK 10</div>
-                        <div className='border bg-gray-100 p-4'>UK 11</div>
+                        {SIZE_OPTIONS.map((size) => (
+                            <button
+                                key={size}
+                                type="button"
+                                onClick={() => setSelectedSize(size)}
+                                className={`border px-4 py-3 transition ${
+                                    selectedSize === size
+                                        ? 'border-[#138695] bg-[#138695] text-white'
+                                        : 'border-gray-200 bg-gray-100 text-gray-800 hover:border-gray-300'
+                                }`}
+                            >
+                                {size}
+                            </button>
+                        ))}
                     </div>
                 </div>
                 <Link to='/cart'>
-                    <button onClick={() => { addToCart(product.id) }} className='bg-[#138695] text-white px-6 py-3 my-4 w-max'>ADD TO CART</button>
+                    <button
+                        onClick={() => { addToCart(product.id, selectedSize) }}
+                        className='bg-[#138695] text-white px-6 py-3 my-4 w-max'
+                    >
+                        ADD TO CART
+                    </button>
                 </Link>
                 <p><span className='font-semibold'>Category:</span> Sports, Gym, Running</p>
                 <p><span className='font-semibold'>Tags:</span> Modern, Latest</p>

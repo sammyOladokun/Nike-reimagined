@@ -8,6 +8,7 @@ import { orderRepository } from '../repositories/order.repository.js';
 const orderItemSchema = z.object({
   productId: z.number().int().positive('Select a valid product'),
   productName: z.string().trim().min(2, 'Product name is required'),
+  size: z.string().trim().min(1, 'Select a shoe size'),
   unitPrice: z.number().positive('Product price must be greater than zero'),
   quantity: z.number().int().positive('Quantity must be at least 1'),
 });
@@ -15,9 +16,12 @@ const orderItemSchema = z.object({
 const checkoutSchema = z.object({
   customerName: z.string().trim().min(2, 'Full name must be at least 2 characters long'),
   customerEmail: z.string().trim().email('Enter a valid email address').optional(),
-  shippingAddress: z.string().trim().min(5, 'Shipping address must be at least 5 characters long'),
+  shippingAddress: z.string().trim().min(10, 'Shipping address must be at least 10 characters long'),
   city: z.string().trim().min(2, 'City is required'),
-  postalCode: z.string().trim().min(3, 'Postal code is required'),
+  postalCode: z
+    .string()
+    .trim()
+    .regex(/^\d{6}$/, 'Postal code must be a 6-digit Nigerian postal code'),
   items: z.array(orderItemSchema).min(1, 'Add at least one item before checking out'),
 });
 
@@ -40,6 +44,7 @@ const serializeOrder = (order) => ({
     id: item.id,
     productId: item.productId,
     productName: item.productName,
+    size: item.size,
     unitPrice: item.unitPrice.toString(),
     quantity: item.quantity,
   })),
@@ -75,6 +80,7 @@ const checkout = async (payload, user) => {
     items: data.items.map((item) => ({
       productId: item.productId,
       productName: item.productName,
+      size: item.size,
       unitPrice: toDecimal(item.unitPrice),
       quantity: item.quantity,
     })),

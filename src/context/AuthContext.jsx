@@ -1,5 +1,9 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { apiRequest } from '../lib/api';
+import {
+  apiRequest,
+  clearStoredAccessToken,
+  setStoredAccessToken,
+} from '../lib/api';
 
 const AuthContext = createContext(null);
 
@@ -15,6 +19,7 @@ export const AuthProvider = ({ children }) => {
         setUser(session.user ?? null);
       } catch {
         setUser(null);
+        clearStoredAccessToken();
       } finally {
         setIsLoading(false);
       }
@@ -31,6 +36,7 @@ export const AuthProvider = ({ children }) => {
         body: JSON.stringify(payload),
       });
       setUser(result.user);
+      setStoredAccessToken(result.accessToken);
       return result;
     } catch (error) {
       const hasFieldErrors = error.fieldErrors && Object.values(error.fieldErrors).some((messages) => Array.isArray(messages) ? messages.length > 0 : Boolean(messages));
@@ -48,6 +54,7 @@ export const AuthProvider = ({ children }) => {
   const signOut = async () => {
     await apiRequest('/api/auth/signout', { method: 'POST' });
     setUser(null);
+    clearStoredAccessToken();
   };
 
   const value = useMemo(

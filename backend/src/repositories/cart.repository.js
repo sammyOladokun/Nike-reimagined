@@ -1,5 +1,7 @@
 import { prisma } from '../lib/prisma.js';
 
+const DEFAULT_SIZE = 'UK 9';
+
 const getByUserId = async (userId) =>
   prisma.cart.findUnique({
     where: { userId },
@@ -30,6 +32,7 @@ const replaceItems = async (cartId, items) =>
         data: items.map((item) => ({
           cartId,
           productId: item.productId,
+          size: item.size ?? DEFAULT_SIZE,
           quantity: item.quantity,
         })),
       });

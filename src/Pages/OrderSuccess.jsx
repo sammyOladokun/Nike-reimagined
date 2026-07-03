@@ -23,6 +23,22 @@ const OrderSuccess = () => {
             <p><span className="font-semibold text-gray-900">Total:</span> ${order.total}</p>
             <p><span className="font-semibold text-gray-900">Status:</span> {order.status}</p>
           </div>
+          {order.items?.length > 0 && (
+            <div className="mt-6 border-t border-gray-200 pt-5">
+              <p className="text-sm uppercase tracking-[0.25em] text-gray-500">Items</p>
+              <div className="mt-4 space-y-3 text-sm text-gray-700">
+                {order.items.map((item) => (
+                  <div key={item.id} className="flex items-center justify-between gap-4">
+                    <div>
+                      <p className="font-semibold text-gray-900">{item.productName}</p>
+                      <p>Size {item.size} · Qty {item.quantity}</p>
+                    </div>
+                    <p className="font-semibold">${item.unitPrice * item.quantity}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       ) : (
         <p className="mt-4 text-gray-600">

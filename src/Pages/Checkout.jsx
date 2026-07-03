@@ -9,7 +9,7 @@ const getFirstError = (value) => (Array.isArray(value) ? value[0] : value);
 const Checkout = () => {
   const navigate = useNavigate();
   const { user, isLoading } = useAuth();
-  const { all_product, cartItems, clearCart, getTotalCartAmount, getTotalCartItems } = useContext(ShopContext);
+  const { getCartLineItems, clearCart, getTotalCartAmount, getTotalCartItems } = useContext(ShopContext);
   const [formData, setFormData] = useState({
     email: '',
     fullName: '',
@@ -21,10 +21,7 @@ const Checkout = () => {
   const [fieldErrors, setFieldErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const items = useMemo(
-    () => all_product.filter((product) => cartItems[product.id] > 0),
-    [all_product, cartItems],
-  );
+  const items = useMemo(() => getCartLineItems(), [getCartLineItems]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -44,11 +41,12 @@ const Checkout = () => {
         shippingAddress: formData.address,
         city: formData.city,
         postalCode: formData.postalCode,
-        items: items.map((product) => ({
-          productId: product.id,
-          productName: product.name,
-          unitPrice: product.new_price,
-          quantity: cartItems[product.id],
+        items: items.map((item) => ({
+          productId: item.productId,
+          productName: item.product.name,
+          size: item.size,
+          unitPrice: item.product.new_price,
+          quantity: item.quantity,
         })),
       };
 
@@ -178,7 +176,11 @@ const Checkout = () => {
                 value={formData.postalCode}
                 onChange={handleChange}
                 required
+                inputMode="numeric"
+                maxLength={6}
+                pattern="\d{6}"
                 className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#138695]"
+                placeholder="123456"
               />
               {fieldErrors.postalCode && (
                 <p className="mt-2 text-sm text-red-600">{fieldErrors.postalCode}</p>
@@ -190,14 +192,16 @@ const Checkout = () => {
             <label className="block text-sm font-medium text-gray-700" htmlFor="address">
               Address
             </label>
-            <input
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              required
-              className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#138695]"
-            />
+              <input
+                id="address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                required
+                minLength={10}
+                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#138695]"
+                placeholder="12 Allen Avenue, Ikeja"
+              />
             {fieldErrors.address && (
               <p className="mt-2 text-sm text-red-600">{fieldErrors.address}</p>
             )}
@@ -237,18 +241,18 @@ const Checkout = () => {
           <div className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm sticky top-6">
             <h2 className="text-2xl font-bold">Order summary</h2>
             <div className="mt-6 space-y-4">
-              {items.map((product) => (
-                <div key={product.id} className="flex items-center gap-4">
+              {items.map((item) => (
+                <div key={item.lineKey} className="flex items-center gap-4">
                   <img
-                    src={product.image}
-                    alt={product.name}
+                    src={item.product.image}
+                    alt={item.product.name}
                     className="h-16 w-16 rounded-xl object-cover"
                   />
                   <div className="flex-1">
-                    <p className="font-semibold">{product.name}</p>
-                    <p className="text-sm text-gray-500">Qty {cartItems[product.id]}</p>
+                    <p className="font-semibold">{item.product.name}</p>
+                    <p className="text-sm text-gray-500">Size {item.size} · Qty {item.quantity}</p>
                   </div>
-                  <p className="font-semibold">${product.new_price * cartItems[product.id]}</p>
+                  <p className="font-semibold">${item.subtotal}</p>
                 </div>
               ))}
             </div>

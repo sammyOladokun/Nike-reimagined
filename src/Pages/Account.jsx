@@ -137,6 +137,22 @@ const Account = () => {
                       <span className="font-semibold text-gray-900">Ship to:</span> {order.shippingAddress}, {order.city}
                     </p>
                   </div>
+                  {order.items?.length > 0 && (
+                    <div className="mt-4 rounded-2xl bg-gray-50 p-4 text-sm text-gray-600">
+                      <p className="font-semibold text-gray-900">Purchased items</p>
+                      <div className="mt-3 space-y-2">
+                        {order.items.map((item) => (
+                          <div key={item.id} className="flex items-center justify-between gap-4">
+                            <div>
+                              <p className="font-medium text-gray-900">{item.productName}</p>
+                              <p>Size {item.size} · Qty {item.quantity}</p>
+                            </div>
+                            <p className="font-semibold text-gray-900">${item.unitPrice * item.quantity}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

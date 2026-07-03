@@ -31,3 +31,55 @@ npm install
 cp .env.example .env
 npm run dev
 ```
+
+---
+
+## Production Deployment
+
+Recommended setup:
+
+- **Frontend:** Vercel
+- **Backend:** Render
+- **Database:** Neon PostgreSQL
+
+### Frontend env on Vercel
+
+Set:
+
+```bash
+VITE_API_URL=https://your-backend.onrender.com
+```
+
+### Backend env on Render
+
+Set:
+
+```bash
+NODE_ENV=production
+PORT=10000
+CLIENT_URL=https://your-frontend.vercel.app
+DATABASE_URL=postgresql://USER:PASSWORD@HOST/DB?sslmode=require
+JWT_SECRET=generate-a-long-random-secret
+JWT_EXPIRES_IN=7d
+```
+
+### Neon database
+
+Use the Neon connection string in `DATABASE_URL`. Make sure SSL is enabled:
+
+```bash
+postgresql://USER:PASSWORD@HOST/DB?sslmode=require
+```
+
+### Deploy order
+
+1. Create the Neon database
+2. Deploy the backend to Render
+3. Set `VITE_API_URL` on Vercel
+4. Deploy the frontend to Vercel
+5. Test sign up, sign in, cart, and checkout end to end
+
+### Vercel routing
+
+The root `vercel.json` keeps React Router working on page refreshes by rewriting
+all non-asset routes to `index.html`.
