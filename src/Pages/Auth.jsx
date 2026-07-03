@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 const getFirstError = (value) => (Array.isArray(value) ? value[0] : value);
@@ -10,6 +11,7 @@ const Auth = () => {
   const { signIn, signUp, authError, isLoading } = useAuth();
   const [mode, setMode] = useState('signin');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [fieldErrors, setFieldErrors] = useState({});
   const [formData, setFormData] = useState({
     name: '',
@@ -153,15 +155,25 @@ const Auth = () => {
               <label className="block text-sm font-medium text-gray-700" htmlFor="password">
                 Password
               </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-[#138695]"
-                placeholder="At least 8 characters"
-              />
+              <div className="relative mt-2">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  value={formData.password}
+                  onChange={handleChange}
+                  className="w-full rounded-xl border border-gray-300 px-4 py-3 pr-12 outline-none focus:border-[#138695]"
+                  placeholder="At least 8 characters"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((previous) => !previous)}
+                  className="absolute inset-y-0 right-3 flex items-center text-gray-500 transition hover:text-gray-900"
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
               {fieldErrors.password && (
                 <p className="mt-2 text-sm text-red-600">{fieldErrors.password}</p>
               )}
