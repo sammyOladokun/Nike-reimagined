@@ -13,10 +13,24 @@ import { notFoundHandler } from './middleware/notFound.middleware.js';
 import { errorHandler } from './middleware/error.middleware.js';
 
 const app = express();
+const normalizeOrigin = (value) => value?.replace(/\/$/, '');
+const allowedOrigin = normalizeOrigin(env.CLIENT_URL);
 
 app.use(
   cors({
-    origin: env.NODE_ENV === 'development' ? true : env.CLIENT_URL,
+    origin: env.NODE_ENV === 'development'
+      ? true
+      : (origin, callback) => {
+          if (!origin) {
+            return callback(null, true);
+          }
+
+          if (normalizeOrigin(origin) === allowedOrigin) {
+            return callback(null, true);
+          }
+
+          return callback(new Error(`CORS blocked for origin ${origin}`));
+        },
     credentials: true,
   }),
 );
