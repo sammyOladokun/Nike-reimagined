@@ -25,22 +25,22 @@ const ResponsiveMenu = ({showMenu, setShowMenu}) => {
   }, [showMenu])
 
   return (
-    <div className={`${showMenu ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'} fixed inset-0 z-40 transition-opacity duration-200 md:hidden`}>
+    <div className={`${showMenu ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'} fixed inset-0 z-[70] transition-opacity duration-200 md:hidden`}>
       <button
         type="button"
         aria-label="Close mobile menu overlay"
-        className="absolute inset-0 bg-black/50"
+        className="absolute inset-0 z-0 bg-black/50"
         onClick={() => setShowMenu(false)}
       />
 
       <div
-        className={`${showMenu ? 'translate-x-0' : '-translate-x-full'} absolute left-0 top-0 flex h-full w-[82%] max-w-sm flex-col justify-between bg-white px-8 pb-6 pt-16 text-black shadow-2xl transition-transform duration-300 rounded-r-3xl`}
+        className={`${showMenu ? 'translate-x-0' : '-translate-x-full'} absolute left-0 top-0 z-10 flex h-full w-[82%] max-w-sm flex-col justify-between bg-white px-8 pb-6 pt-16 text-black shadow-2xl transition-transform duration-300 rounded-r-3xl`}
       >
         <div>
           <div className='flex items-center justify-start gap-3'>
               <FaUserCircle size={50}/>
               <div>
-                  <h1>Welcome</h1>
+                  <h1>Welcome{user?.name ? `, ${user.name}` : ''}</h1>
                   <h1 className='text-sm text-slate-500'>Nike Reimagined</h1>
               </div>
           </div>
